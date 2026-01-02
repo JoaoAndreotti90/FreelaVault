@@ -104,7 +104,13 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
           </div>
 
           {canReview && (
-            <form action={createReview} className="mb-12 rounded-2xl bg-white p-6 shadow-sm border border-gray-100">
+            <form 
+              action={async (formData) => {
+                "use server"
+                await createReview(formData)
+              }} 
+              className="mb-12 rounded-2xl bg-white p-6 shadow-sm border border-gray-100"
+            >
               <h3 className="text-base font-bold text-gray-900 mb-4">Deixe sua avaliação</h3>
               <input type="hidden" name="projectId" value={project.id} />
               
