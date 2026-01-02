@@ -22,10 +22,10 @@ export default async function Home({
 
   const projects = await db.project.findMany({
     where: {
-      OR: [
-        { name: { contains: searchTerm, mode: "insensitive" } },
-        { description: { contains: searchTerm, mode: "insensitive" } },
-      ],
+      name: {
+        contains: searchTerm,
+        mode: "insensitive",
+      },
     },
     orderBy: { createdAt: "desc" },
     include: { freelancer: true },
