@@ -13,27 +13,39 @@ export default function SellerProjectCard({ project, salesCount }: any) {
 
   async function handleDelete() {
     setLoading(true)
-    const res = await deleteProject(project.id)
-    
-    if (res?.error) {
-      toast.error(res.error)
-    } else {
-      toast.success("Projeto excluído com sucesso!")
-      setIsDeleting(false)
+    try {
+      const res = await deleteProject(project.id)
+      if (res?.error) {
+        toast.error(res.error)
+      } else {
+        toast.success("Projeto excluído com sucesso!")
+        setIsDeleting(false)
+      }
+    } catch (err) {
+      toast.error("Erro ao excluir o projeto.")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
-  async function handleUpdate(formData: FormData) {
+  async function handleUpdate(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
     setLoading(true)
-    const res = await updateProject(formData)
-    setLoading(false)
     
-    if (res?.error) {
-      toast.error(res.error)
-    } else {
-      toast.success("Projeto atualizado com sucesso!")
-      setIsEditing(false)
+    const formData = new FormData(event.currentTarget)
+    
+    try {
+      const res = await updateProject(formData)
+      if (res?.error) {
+        toast.error(res.error)
+      } else {
+        toast.success("Projeto atualizado com sucesso!")
+        setIsEditing(false)
+      }
+    } catch (err) {
+      toast.error("Ocorreu um erro ao atualizar o projeto.")
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -47,7 +59,6 @@ export default function SellerProjectCard({ project, salesCount }: any) {
   return (
     <>
       <div className="group relative flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:border-gray-300">
-        
         <div className="flex min-w-0 flex-col gap-1">
           <h3 className="truncate font-bold text-gray-900">{project.name}</h3>
           <div className="flex items-center gap-2 text-sm">
@@ -91,7 +102,7 @@ export default function SellerProjectCard({ project, salesCount }: any) {
               </button>
             </div>
             
-            <form action={handleUpdate} className="space-y-4">
+            <form onSubmit={handleUpdate} className="space-y-4">
               <input type="hidden" name="projectId" value={project.id} />
               
               <div>
