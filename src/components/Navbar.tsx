@@ -29,7 +29,7 @@ export default async function Navbar() {
                 href="/dashboard" 
                 className="text-sm font-medium text-gray-500 hover:text-black transition-colors"
               >
-                Dashboard
+                Minha Conta
               </Link>
               
               <div className="h-4 w-[1px] bg-gray-200"></div>
