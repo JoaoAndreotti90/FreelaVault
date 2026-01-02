@@ -161,6 +161,32 @@ export default function SellerProjectCard({ project, salesCount }: any) {
                 </div>
               </div>
 
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Arquivo do Projeto</label>
+                <div className="flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white shadow-sm">
+                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <label
+                      htmlFor="edit-file-upload"
+                      className="cursor-pointer text-sm font-bold text-blue-600 hover:underline"
+                    >
+                      <span>Substituir Arquivo Atual</span>
+                      <input
+                        id="edit-file-upload"
+                        name="file"
+                        type="file"
+                        className="sr-only"
+                      />
+                    </label>
+                    <p className="text-xs text-gray-500">Deixe em branco se não quiser alterar.</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex justify-end gap-3 pt-4 mt-4 border-t">
                 <button
                   type="button"

@@ -94,26 +94,34 @@ export async function updateProject(formData: FormData) {
     const name = formData.get("name") as string
     const description = formData.get("description") as string
     const price = formData.get("price") as string
+    
     const imageFile = formData.get("image") as File
+    const mainFile = formData.get("file") as File
 
     const project = await db.project.findUnique({ where: { id: projectId } })
     if (!project || project.freelancerId !== session.user.id) return { error: "Sem permissão." }
 
     let imageUrl = project.imageUrl
+    let fileUrl = project.fileUrl
 
-    if (imageFile && imageFile.size > 0) {
-      if (!process.env.BLOB_READ_WRITE_TOKEN) {
-        return { error: "Erro de Configuração: Token de Upload (Blob) não encontrado." }
+    if (process.env.BLOB_READ_WRITE_TOKEN) {
+      if (imageFile && imageFile.size > 0) {
+        if (imageFile.size > 4.5 * 1024 * 1024) return { error: "Imagem muito grande (Máx 4.5MB)." }
+        const imageBlob = await put(`covers/${imageFile.name}`, imageFile, {
+          access: "public",
+          addRandomSuffix: true,
+        })
+        imageUrl = imageBlob.url
       }
-      
-      if (imageFile.size > 4.5 * 1024 * 1024) {
-        return { error: "A nova imagem é muito grande (Máx 4.5MB)." }
+
+      if (mainFile && mainFile.size > 0) {
+        if (mainFile.size > 4.5 * 1024 * 1024) return { error: "Arquivo muito grande (Máx 4.5MB)." }
+        const fileBlob = await put(`projects/${mainFile.name}`, mainFile, {
+          access: "public",
+          addRandomSuffix: true,
+        })
+        fileUrl = fileBlob.url
       }
-      const imageBlob = await put(`covers/${imageFile.name}`, imageFile, {
-        access: "public",
-        addRandomSuffix: true,
-      })
-      imageUrl = imageBlob.url
     }
     
     await db.project.update({
@@ -122,7 +130,8 @@ export async function updateProject(formData: FormData) {
         name, 
         description, 
         price: Number(price),
-        imageUrl: imageUrl
+        imageUrl,
+        fileUrl
       }
     })
     
