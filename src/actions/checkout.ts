@@ -22,22 +22,17 @@ export async function buyProject(formData: FormData) {
     throw new Error("Projeto não encontrado")
   }
 
-  const priceInCents = Math.round(Number(project.price) * 100)
-
-  if (priceInCents > 99999999) {
-    throw new Error("O valor deste projeto excede o limite permitido pelo processador de pagamentos.")
-  }
-
   if (!process.env.STRIPE_SECRET_KEY) {
-    throw new Error("Configuração do Stripe ausente.")
+    throw new Error("Configuração STRIPE_SECRET_KEY ausente.")
   }
-
-  const baseUrl = process.env.NEXTAUTH_URL || "https://free-lavault.vercel.app"
 
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2025-12-15.clover",
     typescript: true,
   })
+
+  const baseUrl = process.env.NEXTAUTH_URL || "https://free-lavault.vercel.app"
+  let checkoutUrl: string | null = null
 
   try {
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -52,7 +47,7 @@ export async function buyProject(formData: FormData) {
               name: project.name,
               description: project.description,
             },
-            unit_amount: priceInCents,
+            unit_amount: Math.round(Number(project.price) * 100),
           },
           quantity: 1,
         },
@@ -65,11 +60,13 @@ export async function buyProject(formData: FormData) {
       cancel_url: `${baseUrl}/`,
     })
 
-    if (checkoutSession.url) {
-      redirect(checkoutSession.url)
-    }
+    checkoutUrl = checkoutSession.url
   } catch (error: any) {
-    console.error("Erro Stripe:", error.message)
-    throw new Error(error.message)
+    console.error("Erro real no Stripe:", error.message)
+    throw new Error("Erro ao processar pagamento com Stripe.")
+  }
+
+  if (checkoutUrl) {
+    redirect(checkoutUrl)
   }
 }
