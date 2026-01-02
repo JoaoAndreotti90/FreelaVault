@@ -5,7 +5,7 @@
 O FreelaVault é uma plataforma completa para desenvolvedores venderem e comprarem projetos de código-fonte de forma segura. O sistema conta com gestão de arquivos, pagamentos automatizados e avaliações reais.
 
 🔗 Link do Projeto
-[https://free-lavault.vercel.app/](https://freelavault.vercel.app/)
+(https://freelavault.vercel.app/)
 
 🛠️ Tecnologias Utilizadas
 Framework: Next.js 
