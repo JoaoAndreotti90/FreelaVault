@@ -21,11 +21,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
         { name: { contains: searchTerm, mode: "insensitive" } },
         { description: { contains: searchTerm, mode: "insensitive" } },
       ],
-      freelancerId: { not: null }
     },
     orderBy: { createdAt: "desc" },
     include: { freelancer: true },
   })
+
+  const activeProjects = projects.filter(p => p.freelancer !== null)
 
   return (
     <main className="min-h-screen bg-gray-50/50">
@@ -46,23 +47,19 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
             <SearchBar />
             <Link
               href="/upload"
-              className="flex items-center justify-center gap-2 rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 hover:shadow-lg"
+              className="flex items-center justify-center gap-2 rounded-full bg-black px-6 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
               Vender Código
             </Link>
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {projects.map((project) => {
+          {activeProjects.map((project) => {
             const isOwner = userId === project.freelancerId
 
             return (
               <div key={project.id} className="group relative flex flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 shadow-sm transition-all hover:shadow-xl hover:-translate-y-1">
-                
                 <Link href={`/project/${project.id}`} className="block">
                   <div className="relative h-48 w-full bg-gray-100 overflow-hidden border-b border-gray-50">
                     {project.imageUrl ? (
@@ -91,14 +88,12 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
                 </Link>
 
                 <div className="flex flex-col justify-between flex-1 p-6">
-                  <Link href={`/project/${project.id}`} className="block">
-                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
-                      {project.name}
-                    </h3>
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-900 line-clamp-1">{project.name}</h3>
                     <p className="mt-2 text-sm text-gray-500 line-clamp-2 leading-relaxed h-10">
                       {project.description}
                     </p>
-                  </Link>
+                  </div>
                   
                   <div className="mt-4 flex items-center gap-2 text-xs font-medium text-gray-400">
                     <span>Por {project.freelancer?.name || "Vendedor"}</span>
@@ -115,14 +110,14 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
                     {isOwner ? (
                        <Link 
                          href="/dashboard"
-                         className="flex h-9 items-center justify-center rounded-full bg-gray-100 px-5 text-xs font-bold text-gray-900 hover:bg-gray-200 transition-colors"
+                         className="flex h-9 items-center justify-center rounded-full bg-gray-100 px-5 text-xs font-bold text-gray-900 hover:bg-gray-200"
                        >
                          Gerenciar
                        </Link>
                     ) : (
                       <form action={buyProject}>
                         <input type="hidden" name="projectId" value={project.id} />
-                        <button type="submit" className="flex h-9 items-center justify-center rounded-full bg-blue-600 px-6 text-xs font-bold text-white transition hover:bg-blue-700 hover:shadow-lg active:scale-95">
+                        <button type="submit" className="flex h-9 items-center justify-center rounded-full bg-blue-600 px-6 text-xs font-bold text-white transition hover:bg-blue-700 active:scale-95">
                           Comprar
                         </button>
                       </form>
@@ -134,7 +129,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ q
           })}
         </div>
 
-        {projects.length === 0 && (
+        {activeProjects.length === 0 && (
           <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
             <h3 className="text-lg font-medium text-gray-900">Nenhum projeto encontrado</h3>
           </div>
