@@ -9,23 +9,23 @@ import Image from "next/image"
 
 export const dynamic = "force-dynamic"
 
-export default async function Home({ searchParams }: { searchParams: { query?: string } }) {
+export default async function Home({ searchParams }: { searchParams: Promise<{ query?: string }> }) {
   const session = await getServerSession(authOptions)
   const userId = session?.user?.id
-  const query = searchParams.query || ""
+  const { query } = await searchParams
+  const searchTerm = query || ""
 
   const projects = await db.project.findMany({
     where: {
-      name: { contains: query, mode: "insensitive" },
-      freelancer: {
-        isNot: undefined 
-      }
+      OR: [
+        { name: { contains: searchTerm, mode: "insensitive" } },
+        { description: { contains: searchTerm, mode: "insensitive" } },
+      ],
+      freelancerId: { not: null }
     },
     orderBy: { createdAt: "desc" },
     include: { freelancer: true },
   })
-
-  const activeProjects = projects.filter(p => p.freelancer !== null)
 
   return (
     <main className="min-h-screen bg-gray-50/50">
@@ -35,7 +35,7 @@ export default async function Home({ searchParams }: { searchParams: { query?: s
         <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              {query ? `Resultados para "${query}"` : "Explorar Projetos"}
+              {searchTerm ? `Resultados para "${searchTerm}"` : "Explorar Projetos"}
             </h1>
             <p className="mt-2 text-gray-500">
               Encontre o código perfeito para o seu próximo grande projeto.
@@ -57,7 +57,7 @@ export default async function Home({ searchParams }: { searchParams: { query?: s
         </div>
 
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {activeProjects.map((project) => {
+          {projects.map((project) => {
             const isOwner = userId === project.freelancerId
 
             return (
@@ -91,14 +91,14 @@ export default async function Home({ searchParams }: { searchParams: { query?: s
                 </Link>
 
                 <div className="flex flex-col justify-between flex-1 p-6">
-                  <div className="block">
+                  <Link href={`/project/${project.id}`} className="block">
                     <h3 className="text-lg font-bold text-gray-900 line-clamp-1">
                       {project.name}
                     </h3>
                     <p className="mt-2 text-sm text-gray-500 line-clamp-2 leading-relaxed h-10">
                       {project.description}
                     </p>
-                  </div>
+                  </Link>
                   
                   <div className="mt-4 flex items-center gap-2 text-xs font-medium text-gray-400">
                     <span>Por {project.freelancer?.name || "Vendedor"}</span>
@@ -134,9 +134,9 @@ export default async function Home({ searchParams }: { searchParams: { query?: s
           })}
         </div>
 
-        {activeProjects.length === 0 && (
+        {projects.length === 0 && (
           <div className="col-span-full flex flex-col items-center justify-center py-20 text-center">
-            <h3 className="text-lg font-medium text-gray-900">Nenhum projeto disponível</h3>
+            <h3 className="text-lg font-medium text-gray-900">Nenhum projeto encontrado</h3>
           </div>
         )}
       </div>
