@@ -14,7 +14,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
 
   const project = await db.project.findUnique({
     where: { id: id },
-    include: { 
+    include: {    
       freelancer: true,
       reviews: { 
         include: { user: true }, 
@@ -159,7 +159,11 @@ export default async function ProjectPage({ params }: { params: Promise<{ id: st
                     </div>
                     <div>
                       <span className="block text-sm font-bold text-gray-900">{review.user.name}</span>
-                      <span className="block text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString()}</span>
+                      <span className="block text-xs text-gray-400">
+                        {new Date(review.createdAt).toLocaleDateString('pt-BR', {
+                          timeZone: 'America/Sao_Paulo'
+                        })}
+                      </span>
                     </div>
                   </div>
                   
